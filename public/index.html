@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepoMaster - Gestor de Repositorios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-icon {
+            font-size: 1.2em;
+        }
+
+        .system-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .info-value {
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .repos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .repo-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .repo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .repo-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-badge.running {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-indicator.running {
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.stopped {
+            background: #dc3545;
+        }
+
+        .status-indicator.checking {
+            background: #ffc107;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .repo-info {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .repo-info-item {
+            margin: 5px 0;
+            font-size: 0.9em;
+            color: #555;
+        }
+
+        .repo-info-item strong {
+            color: #333;
+        }
+
+        .repo-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-start {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #218838;
+        }
+
+        .btn-start:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-open {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-open:hover {
+            background: #5568d3;
+        }
+
+        .btn-open:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #667eea;
+            color: white;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .refresh-btn:hover {
+            background: #5568d3;
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            display: none;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 5px solid #28a745;
+        }
+
+        .notification.error {
+            border-left: 5px solid #dc3545;
+        }
+
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span class="header-icon">🚀</span>
+                RepoMaster
+            </h1>
+            <p style="color: #666; margin-top: 10px;">Gestor de Repositorios - Monitoreo y Control</p>
+            
+            <div class="system-info" id="systemInfo">
+                <div class="info-item">
+                    <span class="info-label">🌐 IP Local:</span>
+                    <span class="info-value" id="localIP">Cargando...</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">🔌 Puerto:</span>
+                    <span class="info-value" id="port">7500</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">🔗 URL Completa:</span>
+                    <span class="info-value" id="fullUrl">Cargando...</span>
+                </div>
+            </div>
+
+            <div class="auto-refresh">
+                <label class="switch">
+                    <input type="checkbox" id="autoRefreshToggle" checked>
+                    <span class="slider"></span>
+                </label>
+                <span>Auto-actualizar cada 5 segundos</span>
+            </div>
+        </div>
+
+        <div class="repos-grid" id="reposGrid">
+            <div class="loading">⏳ Cargando repositorios...</div>
+        </div>
+    </div>
+
+    <button class="refresh-btn" onclick="loadRepos()" title="Actualizar estado">🔄</button>
+
+    <div class="notification" id="notification">
+        <div class="notification-title" id="notificationTitle"></div>
+        <div id="notificationMessage"></div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+
+        // Cargar información del sistema
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch('/api/system-info');
+                const data = await response.json();
+                
+                document.getElementById('localIP').textContent = data.ip;
+                document.getElementById('port').textContent = data.port;
+                document.getElementById('fullUrl').textContent = data.fullUrl;
+            } catch (error) {
+                console.error('Error cargando información del sistema:', error);
+            }
+        }
+
+        // Cargar repositorios
+        async function loadRepos() {
+            try {
+                const response = await fetch('/api/repos/status');
+                const repos = await response.json();
+                
+                const grid = document.getElementById('reposGrid');
+                grid.innerHTML = '';
+                
+                repos.forEach(repo => {
+                    const card = createRepoCard(repo);
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error cargando repositorios:', error);
+                showNotification('Error', 'No se pudieron cargar los repositorios', 'error');
+            }
+        }
+
+        // Crear tarjeta de repositorio
+        function createRepoCard(repo) {
+            const card = document.createElement('div');
+            card.className = 'repo-card';
+            
+            const statusClass = repo.isRunning ? 'running' : 'stopped';
+            const statusText = repo.isRunning ? '🟢 Corriendo' : '🔴 Detenido';
+            
+            card.innerHTML = `
+                <div class="repo-header">
+                    <div class="repo-name">${repo.name}</div>
+                    <div class="status-badge ${statusClass}">
+                        <span class="status-indicator ${statusClass}"></span>
+                        ${statusText}
+                    </div>
+                </div>
+                
+                <div class="repo-info">
+                    <div class="repo-info-item">
+                        <strong>🔌 Puerto:</strong> ${repo.port}
+                    </div>
+                    <div class="repo-info-item">
+                        <strong>🔗 URL:</strong> <a href="${repo.url}" target="_blank" style="color: #667eea;">${repo.url}</a>
+                    </div>
+                    <div class="repo-info-item">
+                        <strong>📁 Ruta:</strong> <span style="font-size: 0.85em;">${repo.path}</span>
+                    </div>
+                </div>
+                
+                <div class="repo-actions">
+                    <button class="btn btn-start" onclick="startRepo('${repo.name}')" ${repo.isRunning ? 'disabled' : ''}>
+                        ▶️ Iniciar
+                    </button>
+                    <button class="btn btn-open" onclick="openRepo('${repo.url}')" ${!repo.isRunning ? 'disabled' : ''}>
+                        🌐 Abrir
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Iniciar repositorio
+        async function startRepo(repoName) {
+            try {
+                showNotification('Iniciando...', `Ejecutando ${repoName}...`, 'success');
+                
+                const response = await fetch('/api/repos/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ repoName })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('✅ Éxito', `${repoName} iniciado en puerto ${data.port}`, 'success');
+                    setTimeout(() => loadRepos(), 3000); // Recargar después de 3 segundos
+                } else {
+                    showNotification('❌ Error', data.error || 'Error al iniciar el repositorio', 'error');
+                }
+            } catch (error) {
+                console.error('Error iniciando repositorio:', error);
+                showNotification('❌ Error', 'Error al iniciar el repositorio', 'error');
+            }
+        }
+
+        // Abrir repositorio en nueva pestaña
+        function openRepo(url) {
+            window.open(url, '_blank');
+        }
+
+        // Mostrar notificación
+        function showNotification(title, message, type) {
+            const notification = document.getElementById('notification');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationMessage = document.getElementById('notificationMessage');
+            
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Auto-refresh toggle
+        document.getElementById('autoRefreshToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                autoRefreshInterval = setInterval(loadRepos, 5000);
+                showNotification('🔄 Auto-actualización', 'Activada cada 5 segundos', 'success');
+            } else {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                showNotification('⏸️ Auto-actualización', 'Desactivada', 'success');
+            }
+        });
+
+        // Inicializar
+        window.addEventListener('load', () => {
+            loadSystemInfo();
+            loadRepos();
+            
+            // Iniciar auto-refresh
+            autoRefreshInterval = setInterval(loadRepos, 5000);
+        });
+    </script>
+</body>
+</html>

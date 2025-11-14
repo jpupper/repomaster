@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════
+  REPOMASTER - Gestor de Repositorios
+═══════════════════════════════════════════════════════════════
+
+📋 DESCRIPCIÓN:
+  RepoMaster es una aplicación web que te permite monitorear y 
+  controlar todos tus repositorios desde un solo lugar.
+
+═══════════════════════════════════════════════════════════════
+
+🚀 INSTALACIÓN:
+
+  1. Ejecuta setup.bat para instalar las dependencias
+     (solo necesitas hacerlo una vez)
+
+═══════════════════════════════════════════════════════════════
+
+▶️ INICIAR LA APLICACIÓN:
+
+  1. Ejecuta run.bat
+  2. Abre tu navegador en: http://localhost:7500
+  3. También puedes acceder desde otros dispositivos usando tu IP local
+
+═══════════════════════════════════════════════════════════════
+
+✨ FUNCIONALIDADES:
+
+  ✅ Ver qué repositorios están corriendo (activos/inactivos)
+  ✅ Muestra tu IP local + puerto para acceso remoto
+  ✅ Iniciar aplicaciones ejecutando su .bat correspondiente
+  ✅ Abrir cada aplicación en el navegador
+  ✅ Auto-actualización cada 5 segundos (puede desactivarse)
+  ✅ Interfaz moderna y responsive
+
+═══════════════════════════════════════════════════════════════
+
+📊 REPOSITORIOS MONITOREADOS:
+
+  • SanjuanFuturo          - Puerto 6250
+  • construituciudad_sanjuan - Puerto 3344
+  • juegoconfotosturisticas  - Puerto 1820
+  • solyestrellas            - Puerto 7400
+  • tragamonedas             - Puerto 9722
+  • vicuniacobre             - Puerto 9999
+
+═══════════════════════════════════════════════════════════════
+
+💡 TIPS:
+
+  • El botón 🔄 en la esquina inferior derecha actualiza manualmente
+  • Los repositorios activos se muestran con 🟢 (verde)
+  • Los repositorios detenidos se muestran con 🔴 (rojo)
+  • Puedes iniciar múltiples repositorios simultáneamente
+  • Cada repositorio se abre en su propia ventana de CMD
+
+═══════════════════════════════════════════════════════════════
+
+🔧 PUERTO DE REPOMASTER: 7500
+
+═══════════════════════════════════════════════════════════════
