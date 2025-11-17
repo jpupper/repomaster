@@ -73,7 +73,7 @@ function checkPort(port) {
             port: port,
             path: '/',
             method: 'GET',
-            timeout: 2000
+            timeout: 3000  // Aumentado a 3 segundos para servidores lentos
         };
 
         const req = http.request(options, (res) => {
@@ -106,6 +106,7 @@ app.get('/api/system-info', (req, res) => {
 // API: Obtener estado de todos los repositorios
 app.get('/api/repos/status', async (req, res) => {
     const results = [];
+    const localIP = getLocalIP();
     
     for (const repo of REPOS) {
         const isRunning = await checkPort(repo.port);
@@ -113,7 +114,8 @@ app.get('/api/repos/status', async (req, res) => {
             name: repo.name,
             port: repo.port,
             isRunning: isRunning,
-            url: `http://localhost:${repo.port}`,
+            urlLocal: `http://localhost:${repo.port}`,
+            urlNetwork: `http://${localIP}:${repo.port}`,
             path: repo.path
         });
     }

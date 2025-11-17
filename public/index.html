@@ -425,7 +425,7 @@
         }
 
         // Cargar repositorios
-        async function loadRepos() {
+        async function loadRepos(silent = false) {
             try {
                 const response = await fetch('/api/repos/status');
                 const repos = await response.json();
@@ -439,7 +439,9 @@
                 });
             } catch (error) {
                 console.error('Error cargando repositorios:', error);
-                showNotification('Error', 'No se pudieron cargar los repositorios', 'error');
+                if (!silent) {
+                    showNotification('Error', 'No se pudieron cargar los repositorios', 'error');
+                }
             }
         }
 
@@ -465,7 +467,10 @@
                         <strong>🔌 Puerto:</strong> ${repo.port}
                     </div>
                     <div class="repo-info-item">
-                        <strong>🔗 URL:</strong> <a href="${repo.url}" target="_blank" style="color: #667eea;">${repo.url}</a>
+                        <strong>🔗 Local:</strong> <a href="${repo.urlLocal}" target="_blank" style="color: #667eea;">${repo.urlLocal}</a>
+                    </div>
+                    <div class="repo-info-item">
+                        <strong>🌐 Red:</strong> <a href="${repo.urlNetwork}" target="_blank" style="color: #667eea;">${repo.urlNetwork}</a>
                     </div>
                     <div class="repo-info-item">
                         <strong>📁 Ruta:</strong> <span style="font-size: 0.85em;">${repo.path}</span>
@@ -476,7 +481,7 @@
                     <button class="btn btn-start" onclick="startRepo('${repo.name}')" ${repo.isRunning ? 'disabled' : ''}>
                         ▶️ Iniciar
                     </button>
-                    <button class="btn btn-open" onclick="openRepo('${repo.url}')" ${!repo.isRunning ? 'disabled' : ''}>
+                    <button class="btn btn-open" onclick="openRepo('${repo.urlLocal}')" ${!repo.isRunning ? 'disabled' : ''}>
                         🌐 Abrir
                     </button>
                 </div>
@@ -501,8 +506,8 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('✅ Éxito', `${repoName} iniciado en puerto ${data.port}`, 'success');
-                    setTimeout(() => loadRepos(), 3000); // Recargar después de 3 segundos
+                    showNotification('✅ Éxito', `${repoName} iniciado en puerto ${data.port}. Verificando en 8 segundos...`, 'success');
+                    setTimeout(() => loadRepos(true), 8000); // Recargar después de 8 segundos (silencioso)
                 } else {
                     showNotification('❌ Error', data.error || 'Error al iniciar el repositorio', 'error');
                 }
@@ -536,7 +541,7 @@
         // Auto-refresh toggle
         document.getElementById('autoRefreshToggle').addEventListener('change', function(e) {
             if (e.target.checked) {
-                autoRefreshInterval = setInterval(loadRepos, 5000);
+                autoRefreshInterval = setInterval(() => loadRepos(true), 5000);
                 showNotification('🔄 Auto-actualización', 'Activada cada 5 segundos', 'success');
             } else {
                 if (autoRefreshInterval) {
@@ -552,8 +557,8 @@
             loadSystemInfo();
             loadRepos();
             
-            // Iniciar auto-refresh
-            autoRefreshInterval = setInterval(loadRepos, 5000);
+            // Iniciar auto-refresh (silencioso)
+            autoRefreshInterval = setInterval(() => loadRepos(true), 5000);
         });
     </script>
 </body>
